@@ -1059,6 +1059,15 @@
           "type": "bool",
           "description": "The zone audio parameters affect the sources outside the zone when the listener is inside",
           "default": true
+        },
+        "shape": {
+          "type": "enum",
+          "description": "Shape of the audio zone.",
+          "items": [
+            [ "box", "Box", "Box shape."],
+            [ "sphere", "Sphere", "Spehere shape."]
+          ],
+          "default": "0"
         }
       },
       "deps": ["audio-params"]
