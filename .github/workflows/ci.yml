@@ -70,7 +70,7 @@ jobs:
     - name: Package addon
       id: package
       run: |
-        cd ../ci
+        cd ci
         echo "::set-output name=version::$(python make_release.py)"
     - name: Upload addon artifacts
       uses: actions/upload-artifact@v2
