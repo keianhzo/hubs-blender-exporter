@@ -12,31 +12,30 @@ bl_info = {
     "category": "Generic"
 }
 
-import sys
+from .io import gltf_exporter
+from . import (nodes, components)
 
 
-# Determine if we are running inside Blender to load dependencies (mostly to allow accesing bl_info from outside the Blender runtime)
-if 'blender' in sys.argv[0].lower():
-    from .io import gltf_exporter
-    from . import (nodes, components)
+def register():
+    print('Register Addon')
 
-    def register():
-        print('Register Addon')
+    gltf_exporter.register()
+    nodes.register()
+    components.register()
 
-        gltf_exporter.register()
-        nodes.register()
-        components.register()
 
-    def unregister():
-        components.unregister()
-        nodes.unregister()
-        gltf_exporter.unregister()
+def unregister():
+    components.unregister()
+    nodes.unregister()
+    gltf_exporter.unregister()
 
-        print('Addon unregistered')
+    print('Addon unregistered')
 
-    # called by gltf-blender-io after it has loaded
+# called by gltf-blender-io after it has loaded
 
-    glTF2ExportUserExtension = gltf_exporter.glTF2ExportUserExtension
 
-    def register_panel():
-        return gltf_exporter.register_export_panel()
+glTF2ExportUserExtension = gltf_exporter.glTF2ExportUserExtension
+
+
+def register_panel():
+    return gltf_exporter.register_export_panel()
