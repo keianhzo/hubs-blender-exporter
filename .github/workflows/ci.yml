@@ -71,5 +71,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: io_hubs_addon.zip
-        path: addons/io_hubs_addon
+        path: addons
         if-no-files-found: error
