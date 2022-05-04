@@ -72,7 +72,8 @@ jobs:
       run: |
         cd ci
         VERSION=$(python make_release.py)
-        echo "::set-output name=version::$VERSION"
+        echo "Addon version: ${VERSION}"
+        echo "::set-output name=version::${VERSION}"
     - name: Upload addon artifacts
       uses: actions/upload-artifact@v2
       with:
