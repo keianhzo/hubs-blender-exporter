@@ -14,6 +14,7 @@ version = '.'.join(map(str, bl_info['version']))
 
 FILE_NAME = 'io_hubs_addon_{}'.format(
     ('.'.join(map(str, bl_info['version'])))) + '.zip'
+print("XXX: " + path.join(CWD, FILE_NAME))
 with ZipFile(path.join(CWD, FILE_NAME), 'w') as z:
     for root, _, files in walk('io_hubs_addon'):
         for file in files:
