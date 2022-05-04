@@ -1,10 +1,14 @@
 {
   "python.autoComplete.extraPaths": [
-    "../fake_bpy_modules_3.0-20211212"
+    "fake_bpy_modules_3.0-20211212"
   ],
   "python.formatting.provider": "autopep8",
+  "python.formatting.autopep8Args": [
+    "--ignore",
+    "E402"
+  ],
   "python.analysis.extraPaths": [
-    "../fake_bpy_modules_3.0-20211212"
+    "fake_bpy_modules_3.0-20211212"
   ],
   "editor.formatOnSave": true
 }

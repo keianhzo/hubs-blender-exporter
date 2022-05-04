@@ -1,5 +1,3 @@
-from .io import gltf_exporter
-from . import (nodes, components)
 bl_info = {
     "name": "Hubs Blender Addon",
     "author": "Mozilla Hubs",
@@ -14,30 +12,31 @@ bl_info = {
     "category": "Generic"
 }
 
-# TODO Support architecture kit?
+import sys
 
 
-def register():
-    print('Register Addon')
+# Determine if we are running inside Blender to load dependencies (mostly to allow accesing bl_info from outside the Blender runtime)
+if 'blender' in sys.argv[0].lower():
+    from .io import gltf_exporter
+    from . import (nodes, components)
 
-    gltf_exporter.register()
-    nodes.register()
-    components.register()
+    def register():
+        print('Register Addon')
 
+        gltf_exporter.register()
+        nodes.register()
+        components.register()
 
-def unregister():
-    components.unregister()
-    nodes.unregister()
-    gltf_exporter.unregister()
+    def unregister():
+        components.unregister()
+        nodes.unregister()
+        gltf_exporter.unregister()
 
-    print('Addon unregistered')
+        print('Addon unregistered')
 
+    # called by gltf-blender-io after it has loaded
 
-# called by gltf-blender-io after it has loaded
+    glTF2ExportUserExtension = gltf_exporter.glTF2ExportUserExtension
 
-
-glTF2ExportUserExtension = gltf_exporter.glTF2ExportUserExtension
-
-
-def register_panel():
-    return gltf_exporter.register_export_panel()
+    def register_panel():
+        return gltf_exporter.register_export_panel()
