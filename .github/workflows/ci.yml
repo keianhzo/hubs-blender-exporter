@@ -78,6 +78,6 @@ jobs:
     - name: Upload addon artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: io_hubs_addon_${{steps.package.outputs.version}}.zip
-        path: ci/io_hubs_addon_${{steps.package.outputs.version}}.zip
+        name: io_hubs_addon_${{steps.package.outputs.version}}
+        path: addons/io_hubs_addon
         if-no-files-found: error
