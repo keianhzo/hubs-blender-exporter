@@ -17,7 +17,6 @@ FILE_NAME = 'io_hubs_addon_{}'.format(
 with ZipFile(path.join(CWD, FILE_NAME), 'w') as z:
     for root, _, files in walk('io_hubs_addon'):
         for file in files:
-            print("Writing: " + path.join(root, file))
             z.write(path.join(root, file), compress_type=ZIP_DEFLATED)
 
 chdir("..")
