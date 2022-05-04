@@ -67,9 +67,17 @@ jobs:
         name: test-output
         path: tests/out/mochawesome
         if-no-files-found: error
+    - name: Package addon
+      id: package
+      run: |
+        cd ci
+        VERSION=$(python make_release.py)
+        echo "Addon version: ${VERSION}"
+        echo "$(ls -la)"
+        echo "::set-output name=version::${VERSION}"
     - name: Upload addon artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: io_hubs_addon.zip
+        name: io_hubs_addon_${{steps.package.outputs.version}}
         path: addons/io_hubs_addon
         if-no-files-found: error
