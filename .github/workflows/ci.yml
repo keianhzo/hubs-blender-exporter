@@ -69,9 +69,7 @@ jobs:
         if-no-files-found: error
     - name: Package addon
       id: package
-      run: |
-        cd ci
-        echo "::set-output name=version::$(python make_release.py)"
+      run: echo "::set-output name=version::$(python make_release.py)"
     - name: Upload addon artifacts
       uses: actions/upload-artifact@v2
       with:
