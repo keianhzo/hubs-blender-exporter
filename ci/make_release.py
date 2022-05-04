@@ -1,8 +1,8 @@
 import sys
-from os import path, walk, chdir
+from os import path, walk, chdir, getcwd
 from zipfile import ZipFile, ZIP_DEFLATED
 
-CWD = path.dirname(__file__)
+CWD = getcwd()
 SCRIPT_DIR = path.join(path.abspath(path.join(CWD, '..', 'addons')), '')
 sys.path.append(SCRIPT_DIR)
 
