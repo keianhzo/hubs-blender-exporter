@@ -209,7 +209,7 @@ def gather_vec_property(export_settings, blender_object, target, property_name):
 
     property_definition = target.bl_rna.properties[property_name]
     subtype = getattr(property_definition, 'subtype', None)
-    if subtype and subtype == "COORDS":
+    if subtype and subtype == "DIRECTION":
         out = [vec[0], vec[1]]
     else:
         out = {

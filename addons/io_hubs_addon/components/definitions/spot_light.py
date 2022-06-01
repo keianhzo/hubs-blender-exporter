@@ -63,7 +63,7 @@ class SpotLight(HubsComponent):
     shadowMapResolution: IntVectorProperty(name="Shadow Map Resolution",
                                            description="Shadow Map Resolution",
                                            size=2,
-                                           subtype='COORDINATES',
+                                           subtype="DIRECTION",
                                            default=[512, 512])
 
     shadowBias: FloatProperty(name="Shadow Bias",

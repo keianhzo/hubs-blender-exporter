@@ -32,7 +32,7 @@ class AmmoShape(HubsComponent):
         default="all")
 
     halfExtents: FloatVectorProperty(
-        name="Half Extents", description="Half dimensions of the collider. (Only used when fit is set to \"manual\" and type is set ot \"box\").", unit='LENGTH', subtype="XYZ_LENGTH", default=(0.5, 0.5, 0.5))
+        name="Half Extents", description="Half dimensions of the collider. (Only used when fit is set to \"manual\" and type is set ot \"box\").", unit='LENGTH', subtype="XYZ", default=(0.5, 0.5, 0.5))
 
     minHalfExtent: FloatProperty(
         name="Min Half Extent", description="The minimum size to use when automatically generating half extents. (Only used when fit is set to \"all\" and type is set ot \"box\")", unit="LENGTH", default=0.0)

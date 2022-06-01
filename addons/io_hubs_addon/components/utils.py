@@ -1,3 +1,4 @@
+import bpy
 from .components_registry import get_component_by_name
 from .gizmos import update_gizmos
 
@@ -81,3 +82,23 @@ def get_object_source(context, panel_type):
 
 def dash_to_title(s):
     return s.replace("-", " ").title()
+
+
+def children_recurse(ob, result):
+    def recurse(parent, res):
+        # Look over children at next level
+        for child in parent.children:
+            res.append(child)
+            recurse(child, res)
+
+    recurse(ob, result)
+
+
+def children_recursive(ob):
+    major, _, _ = bpy.app.version
+    if major < 3:
+        ret = []
+        children_recurse(ob, ret)
+        return ret
+    else:
+        return ob.children_recursive
