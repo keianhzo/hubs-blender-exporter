@@ -5,7 +5,7 @@ from io_scene_gltf2.blender.imp.gltf2_blender_material import BlenderMaterial
 from io_scene_gltf2.blender.imp.gltf2_blender_scene import BlenderScene
 from io_scene_gltf2.blender.imp.gltf2_blender_image import BlenderImage
 from .utils import HUBS_CONFIG
-from ..components.components_registry import get_component_by_name
+from ..components.components_registry import get_component_by_name, get_components_registry
 import traceback
 
 EXTENSION_NAME = HUBS_CONFIG["gltfExtensionName"]
@@ -78,6 +78,34 @@ def add_bones(import_settings):
                 gltf_bone, bone, import_settings)
 
 
+def glTF2_pre_import_callback(import_settings):
+    for ob in bpy.context.view_layer.objects:
+        component_list = ob.hubs_component_list
+
+        registered_hubs_components = get_components_registry()
+
+        if component_list.items:
+            for component_item in component_list.items:
+                component_name = component_item.name
+                if component_name in registered_hubs_components:
+                    component_class = registered_hubs_components[component_name]
+                    component_class.pre_import(import_settings, ob)
+
+
+def glTF2_post_import_callback(import_settings):
+    for ob in bpy.context.view_layer.objects:
+        component_list = ob.hubs_component_list
+
+        registered_hubs_components = get_components_registry()
+
+        if component_list.items:
+            for component_item in component_list.items:
+                component_name = component_item.name
+                if component_name in registered_hubs_components:
+                    component_class = registered_hubs_components[component_name]
+                    component_class.post_import(import_settings, ob)
+
+
 class glTF2ImportUserExtension:
 
     def __init__(self):
@@ -105,6 +133,18 @@ class glTF2ImportUserExtension:
 
         add_bones(import_settings)
         armatures.clear()
+
+    def gather_import_scene_before_hook(self, gltf_scene, blender_scene, import_settings):
+        if not self.properties.enabled:
+            return
+
+        glTF2_pre_import_callback(import_settings)
+
+    def gather_import_scene_after_animation_hook(self, gltf_scene, blender_scene, import_settings):
+        if not self.properties.enabled:
+            return
+
+        glTF2_post_import_callback(import_settings)
 
     def gather_import_node_after_hook(self, vnode, gltf_node, blender_object, import_settings):
         if not self.properties.enabled:
@@ -191,6 +231,8 @@ def patched_BlenderScene_create(gltf):
     global armatures
     armatures.clear()
 
+    glTF2_pre_import_callback(gltf)
+
     orig_BlenderScene_create(gltf)
     gltf_scene = gltf.data.scenes[gltf.data.scene]
     blender_object = bpy.data.scenes[gltf.blender_scene]
@@ -199,6 +241,8 @@ def patched_BlenderScene_create(gltf):
     # Bones are created after the armatures so we need to wait until all nodes have been processed to be able to access the bones objects
     add_bones(gltf)
     armatures.clear()
+
+    glTF2_post_import_callback(gltf)
 
 
 def register():

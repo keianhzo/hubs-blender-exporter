@@ -94,7 +94,8 @@ class HubsComponent(PropertyGroup):
             if not self.bl_rna.properties[key].is_hidden:
                 layout.prop(data=self, property=key)
 
-    def pre_export(self, export_settings, object):
+    @classmethod
+    def pre_export(cls, export_settings, blender_object):
         '''This is called by the exporter before starting the export process'''
         pass
 
@@ -103,14 +104,25 @@ class HubsComponent(PropertyGroup):
         return gather_properties(export_settings, blender_object, self)
 
     @classmethod
+    def post_export(cls, export_settings, blender_object):
+        '''This is called by the exporter after the export process has finished'''
+        pass
+
+    @classmethod
+    def pre_import(cls, import_settings, blender_object):
+        '''This is called by the importer before starting the import process'''
+        pass
+
+    @classmethod
     def gather_import(cls, import_settings, blender_object, component_name, component_value):
         component = import_component(component_name, blender_object)
         for property_name, property_value in component_value.items():
             assign_property(import_settings.vnodes, component,
                             property_name, property_value)
 
-    def post_export(self, export_settings, object):
-        '''This is called by the exporter after the export process has finished'''
+    @classmethod
+    def post_import(cls, import_settings, blender_object):
+        '''This is called by the importer after the import process has finished'''
         pass
 
     @classmethod

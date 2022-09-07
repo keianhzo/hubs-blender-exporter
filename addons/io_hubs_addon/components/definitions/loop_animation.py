@@ -1,7 +1,8 @@
 import bpy
 from bpy.app.handlers import persistent
-from bpy.props import StringProperty, CollectionProperty, IntProperty, BoolProperty, EnumProperty, FloatProperty
+from bpy.props import StringProperty, CollectionProperty, IntProperty, EnumProperty, FloatProperty
 from bpy.types import PropertyGroup, Menu, Operator
+from ...io.gltf_exporter import EXTENSION_NAME
 from ..hubs_component import HubsComponent
 from ..types import Category, PanelType, NodeType
 from ...io.utils import import_component, assign_property
@@ -269,6 +270,35 @@ def is_valid_shape_key_track(ob, track):
     Errors.log(track, 'NOT_FOUND', "Track not found.  Did you mean:")
 
     return False
+
+
+def load_nla_tracks(ob):
+    tracks = ob.hubs_component_loop_animation.clip.split(",")
+    for track_name in tracks:
+        try:
+            nla_track = ob.animation_data.nla_tracks[track_name]
+            track_type = "object"
+        except (AttributeError, KeyError):
+            try:
+                nla_track = ob.data.shape_keys.animation_data.nla_tracks[track_name]
+                track_type = "shape_key"
+            except (AttributeError, KeyError):
+                track = ob.hubs_component_loop_animation.tracks_list.add()
+                track.name = track_name
+                continue
+
+        if not has_track(ob.hubs_component_loop_animation.tracks_list, nla_track):
+            track = ob.hubs_component_loop_animation.tracks_list.add()
+            strip_name = get_strip_name(nla_track)
+            action_name = get_action_name(nla_track)
+            track.name = get_display_name(
+                nla_track.name, strip_name)
+            track.track_name = nla_track.name
+            track.strip_name = strip_name if is_default_name(
+                nla_track.name) else ''
+            track.action_name = action_name if is_default_name(
+                nla_track.name) else ''
+            track.track_type = track_type
 
 
 class TracksList(bpy.types.UIList):
@@ -663,29 +693,7 @@ class LoopAnimation(HubsComponent):
         if version < (1, 0, 0):
             def migrate_data(ob, host):
                 if cls.get_name() in host.hubs_component_list.items:
-                    tracks = host.hubs_component_loop_animation.clip.split(",")
-                    for track_name in tracks:
-                        try:
-                            nla_track = ob.animation_data.nla_tracks[track_name]
-                            track_type = "object"
-                        except (AttributeError, KeyError):
-                            try:
-                                nla_track = ob.data.shape_keys.animation_data.nla_tracks[track_name]
-                                track_type = "shape_key"
-                            except (AttributeError, KeyError):
-                                track = host.hubs_component_loop_animation.tracks_list.add()
-                                track.name = track_name
-                                continue
-
-                        if not has_track(host.hubs_component_loop_animation.tracks_list, nla_track):
-                            track = host.hubs_component_loop_animation.tracks_list.add()
-                            strip_name = get_strip_name(nla_track)
-                            action_name = get_action_name(nla_track)
-                            track.name = get_display_name(nla_track.name, strip_name)
-                            track.track_name = nla_track.name
-                            track.strip_name = strip_name if is_default_name(nla_track.name) else ''
-                            track.action_name = action_name if is_default_name(nla_track.name) else ''
-                            track.track_type = track_type
+                    load_nla_tracks(host)
 
             for ob in bpy.data.objects:
                 migrate_data(ob, ob)
@@ -695,21 +703,29 @@ class LoopAnimation(HubsComponent):
                         migrate_data(bone)
 
     @classmethod
-    def gather_import(cls, import_settings, blender_object, component_name, component_value):
+    def gather_import_after_animations(cls, import_settings, blender_object, component_name, component_value):
         blender_component = import_component(
             component_name, blender_object)
 
         for property_name, property_value in component_value.items():
-            if property_name == 'clip':
-                tracks = property_value.split(",")
-                for track_name in tracks:
-                    if not has_track(blender_component.tracks_list, track_name):
-                        track = blender_component.tracks_list.add()
-                        track.name = track_name.strip()
-
-            else:
+            if property_name != 'clip':
                 assign_property(import_settings.vnodes, blender_component,
                                 property_name, property_value)
+
+    @classmethod
+    def post_import(cls, import_settings, blender_object):
+        # Animations are added after all nodes have been imported so we don't have a change to import them per node.
+        # The component has already been imported at this point so we only need to import the clips.
+        gltf_node = next(import_settings.data.nodes[child_index]
+                         for child_index in import_settings.vnodes if import_settings.vnodes[child_index].name == blender_object.name)
+
+        if gltf_node and gltf_node.extensions and EXTENSION_NAME in gltf_node.extensions:
+            components_data = gltf_node.extensions[EXTENSION_NAME]
+            component_value = components_data.get(cls.get_name())
+
+            for property_name, property_value in component_value.items():
+                if property_name == 'clip':
+                    load_nla_tracks(blender_object)
 
 
 def register_module():
