@@ -5,7 +5,6 @@ on:
     workflows: [Lint]
     types:
       - completed
-  pull_request:
 
 jobs:
   test:
@@ -16,6 +15,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       # Finds latest Blender build, and outputs the hosted build's download URL.
       - name: Find latest Blender build
         id: blender_version
