@@ -5,6 +5,7 @@ on:
     workflows: [Test]
     types:
       - completed
+  pull_request:
 
 env:
   CI: true
