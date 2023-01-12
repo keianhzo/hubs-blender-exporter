@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -47,6 +47,14 @@ jobs:
           extra-manifest-options: ''
           extra-pyroma-options: ''
 
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["3.4.0", "3.3.1", "2.93.9"]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
       # Finds latest Blender build, and outputs the hosted build's download URL.
       - name: Find latest Blender build
         id: blender_version
@@ -98,7 +106,11 @@ jobs:
           path: tests/out/mochawesome
           if-no-files-found: error
 
-      # Publish
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
       - name: Update build number
         run: |
           sed -i'' 's/"dev_build"/${{ github.run_number }}/g' $GITHUB_WORKSPACE/addons/io_hubs_addon/__init__.py
@@ -108,4 +120,3 @@ jobs:
           name: io_hubs_addon
           path: addons
           if-no-files-found: error
-
